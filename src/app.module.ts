@@ -1,34 +1,43 @@
-import { Inject, Module, OnModuleInit } from '@nestjs/common'
-import { CoreModule } from '@/core/core.module'
-import { InterceptorsModule } from '@/interceptors/interceptor.module'
-import { DatabaseModule } from '@/database/database.module'
 import { ApiModule } from '@/api/api.module'
-import { CREATE_PRODUCT_USECASE } from '@/api/products/product.di-token'
-import { ICreateProductUseCase } from './api/products/application/use-cases/create.use-case.interface'
-import { products } from './mockdata/products'
-import { CreateProductDto } from './api/products/application/dtos/createProduct.dto'
+import { IProductRepository } from '@/api/products/application/repositories/product.repository.interface'
+import { ImageColor } from '@/api/products/entities/models/imageColor.entity'
+import { Product } from '@/api/products/entities/models/product.entity'
+import { CoreModule } from '@/core/core.module'
+import { DatabaseModule } from '@/database/database.module'
+import { InterceptorsModule } from '@/interceptors/interceptor.module'
+import { products } from '@/mockdata/products'
+import { Inject, Module, OnModuleInit } from '@nestjs/common'
+import { ProductsModule } from './api/products/products.module'
 
 @Module({
-  imports: [CoreModule, DatabaseModule, InterceptorsModule, ApiModule]
+  imports: [CoreModule, DatabaseModule, InterceptorsModule, ApiModule, ProductsModule]
 })
 export class AppModule implements OnModuleInit {
   constructor(
-    @Inject(CREATE_PRODUCT_USECASE)
-    private readonly createProductUseCase: ICreateProductUseCase
+    @Inject('IProductRepository') private readonly createProductRepo: IProductRepository
   ) {}
 
-  onModuleInit() {
-    products.map((item) => {
-      const productDto = new CreateProductDto()
-      productDto.name = item.name
-      productDto.price = item.price
-      productDto.category = item.category
-      productDto.currency = item.currency
-      productDto.sizes = item.sizes
-      productDto.imagesColor = item.images_color
-      productDto.descriptionOfUse = item.descriptionOfUse
+ async onModuleInit() {
+    await products.map((item) => {
+      try {
+      
+      const color_images = item.images_color.map((item) => new ImageColor({ url: item.url, color: item.color }))
+        
+      const product = new Product({
+        name: item.name,
+        price: item.price,
+        category: item.category,
+        currency: item.currency,
+        sizes: item.sizes,
+        imagesColor: color_images, 
+        descriptionOfUse: item.descriptionOfUse,
+        features: item.features
+      })
 
-      this.createProductUseCase.execute(productDto)
+       this.createProductRepo.create(product)
+      } catch(error) {
+        console.log(error.stack)
+      }
     })
   }
 }

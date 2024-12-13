@@ -1,6 +1,6 @@
 from utils import fetch_html
 import json
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup # type: ignore
 from slugify import slugify
 import re
 import os

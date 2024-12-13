@@ -2,6 +2,8 @@
 /dist
 /node_modules
 /build
+/src/mockdata/myenv
+/src/mockdata/__pycache__
 
 # Logs
 logs

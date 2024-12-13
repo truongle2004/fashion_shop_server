@@ -7,7 +7,7 @@ import { KeyService } from '@/api/auth/infrastructure/encryption/impl/key.servic
 import { AccountOrmEntity } from '@/api/auth/infrastructure/orm-entities/account.orm-entity'
 import { UserOrmEntity } from '@/api/auth/infrastructure/orm-entities/user.orm-entity'
 import { AccountRepository } from '@/api/auth/infrastructure/repositories/account.repository'
-import { AccountController } from '@/api/autH/presentation/controller/account.controller'
+import { AccountController } from '@/api/auth/presentation/controller/account.controller'
 import { AuthController } from '@/api/auth/presentation/controller/auth.controller'
 import { KeyController } from '@/api/auth/presentation/controller/key.controller'
 import { Module } from '@nestjs/common'

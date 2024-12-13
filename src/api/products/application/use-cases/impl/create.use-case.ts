@@ -3,12 +3,16 @@ import type { IProductRepository } from '@/api/products/application/repositories
 import type { ICreateProductUseCase } from '@/api/products/application/use-cases/create.use-case.interface'
 import { ImageColor } from '@/api/products/entities/models/imageColor.entity'
 import { Product } from '@/api/products/entities/models/product.entity'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { PRODUCT_REPOSITORY } from '@/api/products/product.di-token'
+import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { Response } from 'express'
 
 @Injectable()
 export class CreateProductUseCase implements ICreateProductUseCase {
-  constructor(private readonly productRepository: IProductRepository) {}
+  constructor(
+    @Inject(PRODUCT_REPOSITORY)
+    private readonly productRepository: IProductRepository
+  ) {}
 
   async execute(createDto: CreateProductDto, res: Response): Promise<void> {
     const {
