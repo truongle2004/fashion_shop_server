@@ -25,13 +25,19 @@ export class ProductRepository implements IProductRepository {
   }
 
   async getRandomProducts(): Promise<Product[]> {
-    const productOrmEntity = await this.productRepository.find({
-      relations: ['images_color'],
-      take: 5,
-      order: {
-        id: 'DESC'
-      }
-    })
+    const productOrmEntity = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.images_color', 'images_color')
+      .select([
+        'product.id',
+        'product.name',
+        'product.price',
+        'product.currency',
+        'images_color.url',
+        'images_color.id'
+      ])
+      .take(8)
+      .getMany()
 
     const res = productOrmEntity.map((item) =>
       this.toProductEntity({
