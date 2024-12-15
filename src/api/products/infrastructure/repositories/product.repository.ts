@@ -11,25 +11,44 @@ import { ProductImageOrmEntity } from '@/api/products/infrastructure/orm-entitie
 export class ProductRepository implements IProductRepository {
   constructor(
     @InjectRepository(ProductOrmEntity)
-    private readonly productRepository: Repository<ProductOrmEntity>,
-    
-    @InjectRepository(ProductImageOrmEntity)
-    private readonly productImageRepository: Repository<ProductImageOrmEntity>
-
-
+    private readonly productRepository: Repository<ProductOrmEntity>
   ) {}
   async create(product: Product): Promise<Product> {
-    const productOrmEntity = this.toOrmEntity(product)
+    const productOrmEntity = this.toProductOrmEntity(product)
     const images = product.imagesColor.map((item) => {
       return this.toProductImageOrmEntity(item)
     })
 
     productOrmEntity.images_color = images
     const result = await this.productRepository.save(productOrmEntity)
-    return this.toEntity(result)
+    return this.toProductEntity(result)
   }
 
-  public toOrmEntity(product: Product): ProductOrmEntity {
+  async getRandomProducts(): Promise<Product[]> {
+    const productOrmEntity = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.images_color', 'images_color')
+      .select([
+        'product.id',
+        'product.name',
+        'product.price',
+        'product.currency',
+        'images_color.url',
+        'images_color.id'
+      ])
+      .take(8)
+      .getMany()
+
+    const res = productOrmEntity.map((item) =>
+      this.toProductEntity({
+        ...item,
+        images_color: item.images_color.length ? [item.images_color[0]] : []
+      })
+    )
+    return res
+  }
+
+  public toProductOrmEntity(product: Product): ProductOrmEntity {
     const productOrmEntity = new ProductOrmEntity()
     productOrmEntity.name = product.name
     productOrmEntity.price = product.price
@@ -48,7 +67,14 @@ export class ProductRepository implements IProductRepository {
     return productImageOrmEntity
   }
 
-  public toEntity(productOrmEntity: ProductOrmEntity): Product {
+  public toProductEntity(productOrmEntity: ProductOrmEntity): Product {
+    const image_colors = productOrmEntity.images_color.map((item) => {
+      return new ImageColor({
+        id: item.id,
+        url: item.url,
+        color: item.color
+      })
+    })
     const product = new Product({
       id: productOrmEntity.id,
       name: productOrmEntity.name,
@@ -58,13 +84,7 @@ export class ProductRepository implements IProductRepository {
       currency: productOrmEntity.currency,
       descriptionOfUse: productOrmEntity.description_use,
       features: productOrmEntity.features,
-      imagesColor: productOrmEntity.images_color.map((item) => {
-        return new ImageColor({
-          id: item.id,
-          url: item.url,
-          color: item.color
-        })
-      })
+      imagesColor: image_colors
     })
     return product
   }
