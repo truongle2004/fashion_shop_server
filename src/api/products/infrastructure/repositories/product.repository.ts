@@ -36,6 +36,7 @@ export class ProductRepository implements IProductRepository {
         'images_color.url',
         'images_color.id'
       ])
+      .orderBy('RAND()')
       .take(8)
       .getMany()
 
