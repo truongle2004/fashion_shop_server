@@ -13,6 +13,7 @@ export class ProductRepository implements IProductRepository {
     @InjectRepository(ProductOrmEntity)
     private readonly productRepository: Repository<ProductOrmEntity>
   ) {}
+
   async create(product: Product): Promise<Product> {
     const productOrmEntity = this.toProductOrmEntity(product)
     const images = product.imagesColor.map((item) => {
@@ -22,6 +23,24 @@ export class ProductRepository implements IProductRepository {
     productOrmEntity.images_color = images
     const result = await this.productRepository.save(productOrmEntity)
     return this.toProductEntity(result)
+  }
+
+  async getProductListByCategory(category: string): Promise<Product[]> {
+    const productOrmEntity = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.images_color', 'images_color')
+      .select([
+        'product.id',
+        'product.name',
+        'product.price',
+        'product.currency',
+        'images_color.url',
+        'images_color.id'
+      ])
+      .where('product.category = :category', { category })
+      .getMany()
+
+    return productOrmEntity.map((product) => this.toProductEntity(product))
   }
 
   async getRandomProducts(): Promise<Product[]> {

@@ -1,27 +1,26 @@
 import { IProductRepository } from '@/api/products/application/repositories/product.repository.interface'
-import { IGetRandomProductsUseCase } from '@/api/products/application/use-cases/getRandom.use-case.interface'
 import { PRODUCT_REPOSITORY } from '@/api/products/product.di-token'
-import {
-  HttpStatus,
-  Inject,
-  Injectable,
-  type LoggerService
-} from '@nestjs/common'
+import { HttpStatus, Inject, Injectable, LoggerService } from '@nestjs/common'
 import { Response } from 'express'
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston'
+import { IGetProductListByCategoryUseCasen } from '@/api/products/application/use-cases/getByCategory.use-case.interface'
 
 @Injectable()
-export class GetRandomProductUseCase implements IGetRandomProductsUseCase {
+export class GetProductListByCategoryUseCase
+  implements IGetProductListByCategoryUseCasen
+{
   constructor(
     @Inject(PRODUCT_REPOSITORY)
     private readonly productRepository: IProductRepository,
 
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: LoggerService
   ) {}
-  async execute(res: Response): Promise<void> {
+  async execute(category: string, res: Response): Promise<void> {
     try {
-      const randomProducts = await this.productRepository.getRandomProducts()
-      res.status(HttpStatus.OK).json(randomProducts)
+      const productByCategory =
+        await this.productRepository.getProductListByCategory(category)
+
+      res.status(HttpStatus.OK).json(productByCategory)
     } catch (error) {
       this.logger.error(error.stack)
     }

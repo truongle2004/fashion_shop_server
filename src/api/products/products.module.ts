@@ -6,19 +6,30 @@ import { ProductHttpController } from '@/api/products/presentation/product.contr
 import { Module, Provider } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { GetRandomProductUseCase } from './application/use-cases/impl/getRandom.use-case'
+import {
+  CREATE_PRODUCT_USECASE,
+  GET_BY_CATEGORY_USECASE,
+  GET_RANDOM_PRODUCT_USECASE,
+  PRODUCT_REPOSITORY
+} from './product.di-token'
+import { GetProductListByCategoryUseCase } from './application/use-cases/impl/getByCategory.use-case'
 
 const dependencies: Provider[] = [
   {
-    provide: 'IProductRepository',
+    provide: PRODUCT_REPOSITORY,
     useClass: ProductRepository
   },
   {
-    provide: 'ICreateProductUseCase',
+    provide: CREATE_PRODUCT_USECASE,
     useClass: CreateProductUseCase
   },
   {
-    provide: 'IGetRandomProductsUseCase',
+    provide: GET_RANDOM_PRODUCT_USECASE,
     useClass: GetRandomProductUseCase
+  },
+  {
+    provide: GET_BY_CATEGORY_USECASE,
+    useClass: GetProductListByCategoryUseCase
   }
 ]
 
