@@ -9,12 +9,14 @@ import { GetRandomProductUseCase } from './application/use-cases/impl/getRandom.
 import {
   CREATE_PRODUCT_USECASE,
   GET_BY_CATEGORY_USECASE,
+  GET_PRODUCT_DETAIL_INFO_USECASE,
   GET_RANDOM_PRODUCT_USECASE,
   ORDER_PRODUCT_BY_PRICE_USECASE,
   PRODUCT_REPOSITORY
 } from './product.di-token'
 import { GetProductListByCategoryUseCase } from './application/use-cases/impl/getByCategory.use-case'
 import { OrderProductByPriceUseCase } from './application/use-cases/impl/orderByPrice.use-case'
+import { GetDetailInfoUseCase } from './application/use-cases/impl/getDetailInfo.use-case'
 
 const dependencies: Provider[] = [
   {
@@ -36,6 +38,10 @@ const dependencies: Provider[] = [
   {
     provide: ORDER_PRODUCT_BY_PRICE_USECASE,
     useClass: OrderProductByPriceUseCase
+  },
+  {
+    provide: GET_PRODUCT_DETAIL_INFO_USECASE,
+    useClass: GetDetailInfoUseCase
   }
 ]
 

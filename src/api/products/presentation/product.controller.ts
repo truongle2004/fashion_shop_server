@@ -5,6 +5,7 @@ import { IGetRandomProductsUseCase } from '@/api/products/application/use-cases/
 import {
   CREATE_PRODUCT_USECASE,
   GET_BY_CATEGORY_USECASE,
+  GET_PRODUCT_DETAIL_INFO_USECASE,
   GET_RANDOM_PRODUCT_USECASE,
   ORDER_PRODUCT_BY_PRICE_USECASE
 } from '@/api/products/product.di-token'
@@ -20,6 +21,7 @@ import {
 } from '@nestjs/common'
 import { Response } from 'express'
 import { IOrderByPriceUseCase } from '@/api/products/application/use-cases/orderByPrice.use-case.interface'
+import { IGetDetailInfoUseCase } from '@/api/products/application/use-cases/getDetailInfo.use-case.interface'
 
 @Controller('api/products')
 export class ProductHttpController {
@@ -34,7 +36,10 @@ export class ProductHttpController {
     private readonly getByCategoryUseCase: IGetProductListByCategoryUseCasen,
 
     @Inject(ORDER_PRODUCT_BY_PRICE_USECASE)
-    private readonly orderProductByPrice: IOrderByPriceUseCase
+    private readonly orderProductByPrice: IOrderByPriceUseCase,
+
+    @Inject(GET_PRODUCT_DETAIL_INFO_USECASE)
+    private readonly getDetailInfoUseCase: IGetDetailInfoUseCase
   ) {}
 
   @Post()
@@ -62,5 +67,10 @@ export class ProductHttpController {
     @Query('type') type: 'asc' | 'desc'
   ) {
     return await this.orderProductByPrice.execute(category, type, res)
+  }
+
+  @Get('info/:id')
+  async getDetailInfo(@Param('id') id: string, @Res() res: Response) {
+    return await this.getDetailInfoUseCase.execute(id, res)
   }
 }
