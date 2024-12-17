@@ -10,9 +10,11 @@ import {
   CREATE_PRODUCT_USECASE,
   GET_BY_CATEGORY_USECASE,
   GET_RANDOM_PRODUCT_USECASE,
+  ORDER_PRODUCT_BY_PRICE_USECASE,
   PRODUCT_REPOSITORY
 } from './product.di-token'
 import { GetProductListByCategoryUseCase } from './application/use-cases/impl/getByCategory.use-case'
+import { OrderProductByPriceUseCase } from './application/use-cases/impl/orderByPrice.use-case'
 
 const dependencies: Provider[] = [
   {
@@ -30,6 +32,10 @@ const dependencies: Provider[] = [
   {
     provide: GET_BY_CATEGORY_USECASE,
     useClass: GetProductListByCategoryUseCase
+  },
+  {
+    provide: ORDER_PRODUCT_BY_PRICE_USECASE,
+    useClass: OrderProductByPriceUseCase
   }
 ]
 
