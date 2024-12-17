@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { ProductImageOrmEntity } from '@/api/products/infrastructure/orm-entities/productImage.orm-entity'
+import { OrderType } from '@/types'
 
 @Injectable()
 export class ProductRepository implements IProductRepository {
@@ -23,6 +24,29 @@ export class ProductRepository implements IProductRepository {
     productOrmEntity.images_color = images
     const result = await this.productRepository.save(productOrmEntity)
     return this.toProductEntity(result)
+  }
+
+  // FIXME: duplicate products
+  async orderProductByPrice(
+    category: string,
+    type: OrderType
+  ): Promise<Product[]> {
+    const productOrmEntity = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.images_color', 'images_color')
+      .select([
+        'product.id',
+        'product.name',
+        'product.price',
+        'product.currency',
+        'images_color.url',
+        'images_color.id'
+      ])
+      .orderBy('product.price', type)
+      .where('product.category = :category', { category })
+      .getMany()
+
+    return productOrmEntity.map((product) => this.toProductEntity(product))
   }
 
   async getProductListByCategory(category: string): Promise<Product[]> {

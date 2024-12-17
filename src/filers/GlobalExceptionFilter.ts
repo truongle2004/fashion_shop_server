@@ -10,6 +10,7 @@ import { AccountExistException } from '@/api/auth/application/exceptions/Account
 import { RefreshTokenNotFoundException } from '@/api/auth/application/exceptions/RefreshToken.exception'
 import { RefreshTokenExpiredException } from '@/api/auth/application/exceptions/RefreshTokenExpired.exception'
 import { AccessTokenExpiredException } from '@/api/auth/application/exceptions/AccessTokenExpired.exception'
+import { InvalidOrderTypeException } from '@/api/products/application/exceptions/InvalidOrderType.exception'
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -49,6 +50,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     if (exception instanceof AccessTokenExpiredException) {
       return response.status(HttpStatus.GONE).send()
+    }
+
+    if (exception instanceof InvalidOrderTypeException) {
+      return response.status(HttpStatus.BAD_REQUEST).json({
+        message: exception.message
+      })
     }
 
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

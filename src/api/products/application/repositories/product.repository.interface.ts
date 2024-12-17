@@ -1,4 +1,5 @@
 import { Product } from '@/api/products/entities/models/product.entity'
+import { OrderType } from '@/types'
 
 export interface IProductRepository {
   /**
@@ -18,4 +19,11 @@ export interface IProductRepository {
    * @return Product[]
    * */
   getProductListByCategory(category: string): Promise<Product[]>
+
+  /**
+   *@param category Product category
+   * @param enum type 'asc' or 'desc'
+   * @return Product[]
+   * */
+  orderProductByPrice(category: string, type: OrderType): Promise<Product[]>
 }
