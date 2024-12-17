@@ -1,12 +1,12 @@
 import { IProductRepository } from '@/api/products/application/repositories/product.repository.interface'
+import { ImageColor } from '@/api/products/entities/models/imageColor.entity'
 import { Product } from '@/api/products/entities/models/product.entity'
 import { ProductOrmEntity } from '@/api/products/infrastructure/orm-entities/product.orm-entity'
-import { ImageColor } from '@/api/products/entities/models/imageColor.entity'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-import { Injectable } from '@nestjs/common'
 import { ProductImageOrmEntity } from '@/api/products/infrastructure/orm-entities/productImage.orm-entity'
 import { OrderType } from '@/types'
+import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
 
 @Injectable()
 export class ProductRepository implements IProductRepository {
@@ -14,6 +14,18 @@ export class ProductRepository implements IProductRepository {
     @InjectRepository(ProductOrmEntity)
     private readonly productRepository: Repository<ProductOrmEntity>
   ) {}
+  async getProductInfoById(id: string): Promise<Product> {
+    const productOrmEntity = await this.productRepository.findOne({
+      where: {
+        id
+      },
+      relations: ['images_color']
+    })
+
+    console.log(productOrmEntity)
+
+    return this.toProductEntity(productOrmEntity)
+  }
 
   async create(product: Product): Promise<Product> {
     const productOrmEntity = this.toProductOrmEntity(product)
@@ -26,7 +38,6 @@ export class ProductRepository implements IProductRepository {
     return this.toProductEntity(result)
   }
 
-  // FIXME: duplicate products
   async orderProductByPrice(
     category: string,
     type: OrderType
