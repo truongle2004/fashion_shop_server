@@ -1,6 +1,6 @@
 import { CreateProductDto } from '@/api/products/application/dtos/createProduct.dto'
 import { ICreateProductUseCase } from '@/api/products/application/use-cases/create.use-case.interface'
-import { IGetProductListByCategoryUseCasen } from '@/api/products/application/use-cases/getByCategory.use-case.interface'
+import { IGetProductListByCategoryUseCase } from '@/api/products/application/use-cases/getByCategory.use-case.interface'
 import { IGetRandomProductsUseCase } from '@/api/products/application/use-cases/getRandom.use-case.interface'
 import {
   CREATE_PRODUCT_USECASE,
@@ -22,6 +22,7 @@ import {
 import { Response } from 'express'
 import { IOrderByPriceUseCase } from '@/api/products/application/use-cases/orderByPrice.use-case.interface'
 import { IGetDetailInfoUseCase } from '@/api/products/application/use-cases/getDetailInfo.use-case.interface'
+import { Paginate, PaginateQuery } from 'nestjs-paginate'
 
 @Controller('api/products')
 export class ProductHttpController {
@@ -33,7 +34,7 @@ export class ProductHttpController {
     private readonly getRandomProductUseCase: IGetRandomProductsUseCase,
 
     @Inject(GET_BY_CATEGORY_USECASE)
-    private readonly getByCategoryUseCase: IGetProductListByCategoryUseCasen,
+    private readonly getByCategoryUseCase: IGetProductListByCategoryUseCase,
 
     @Inject(ORDER_PRODUCT_BY_PRICE_USECASE)
     private readonly orderProductByPrice: IOrderByPriceUseCase,
@@ -60,6 +61,11 @@ export class ProductHttpController {
     return await this.getByCategoryUseCase.execute(category, res)
   }
 
+  @Get('category/:category')
+  async getByCategoryV1(@Paginate() query: PaginateQuery) {
+    return await this.getByCategoryUseCase.executeV1(query)
+  }
+
   @Get('sort')
   async orderProductByPriceQuery(
     @Res() res: Response,
@@ -69,7 +75,7 @@ export class ProductHttpController {
     return await this.orderProductByPrice.execute(category, type, res)
   }
 
-  @Get('info/:id')
+  @Get('detail/:id')
   async getDetailInfo(@Param('id') id: string, @Res() res: Response) {
     return await this.getDetailInfoUseCase.execute(id, res)
   }
