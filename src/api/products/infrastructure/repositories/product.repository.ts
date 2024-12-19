@@ -6,6 +6,7 @@ import { ProductImageOrmEntity } from '@/api/products/infrastructure/orm-entitie
 import { OrderType } from '@/types'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { paginate, PaginateQuery } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
 @Injectable()
@@ -76,6 +77,33 @@ export class ProductRepository implements IProductRepository {
       .getMany()
 
     return productOrmEntity.map((product) => this.toProductEntity(product))
+  }
+
+  async getProductListByCategoryV1(
+    query: PaginateQuery,
+    category: string
+  ): Promise<Product[]> {
+    const queryBuilder = this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.images_color', 'images_color')
+      .select([
+        'product.id',
+        'product.name',
+        'product.price',
+        'product.currency',
+        'images_color.url',
+        'images_color.id'
+      ])
+      .where('product.category = :category', { category })
+
+    const res = await paginate(query, queryBuilder, {
+      defaultLimit: 50,
+      sortableColumns: ['name']
+    })
+
+    const productEntity = res?.data.map((item) => this.toProductEntity(item))
+
+    return productEntity
   }
 
   async getRandomProducts(): Promise<Product[]> {
