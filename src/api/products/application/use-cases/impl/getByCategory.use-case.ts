@@ -24,12 +24,17 @@ export class GetProductListByCategoryUseCase
     res: Response
   ): Promise<void> {
     try {
-      const products = await this.productRepository.getProductListByCategoryV1(
+      const data = await this.productRepository.getProductListByCategoryV1(
         query,
         category
       )
 
-      res.status(HttpStatus.OK).json(products)
+      const { products, totalPages } = data
+
+      res.status(HttpStatus.OK).json({
+        products,
+        totalPages
+      })
     } catch (error) {
       this.logger.error(error.stack)
     }

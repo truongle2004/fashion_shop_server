@@ -23,8 +23,6 @@ export class ProductRepository implements IProductRepository {
       relations: ['images_color']
     })
 
-    console.log(productOrmEntity)
-
     return this.toProductEntity(productOrmEntity)
   }
 
@@ -82,7 +80,7 @@ export class ProductRepository implements IProductRepository {
   async getProductListByCategoryV1(
     query: PaginateQuery,
     category: string
-  ): Promise<Product[]> {
+  ): Promise<{ products: Product[]; totalPages: number }> {
     const queryBuilder = this.productRepository
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.images_color', 'images_color')
@@ -96,14 +94,22 @@ export class ProductRepository implements IProductRepository {
       ])
       .where('product.category = :category', { category })
 
+    // NOTE: nestjs-paginate allow to combine with createQueryBuilder
     const res = await paginate(query, queryBuilder, {
-      defaultLimit: 50,
       sortableColumns: ['name']
     })
 
+    /* NOTE: by default data type is Paginated<Product[]> so that we need to map each item
+     * to return type Product as the requirement expected
+     */
     const productEntity = res?.data.map((item) => this.toProductEntity(item))
 
-    return productEntity
+    const totalPages = Math.ceil(res.meta.totalPages / res.meta.itemsPerPage)
+
+    return {
+      products: productEntity,
+      totalPages
+    }
   }
 
   async getRandomProducts(): Promise<Product[]> {
