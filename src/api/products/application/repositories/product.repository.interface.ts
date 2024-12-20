@@ -1,5 +1,6 @@
 import { Product } from '@/api/products/entities/models/product.entity'
 import { OrderType } from '@/types'
+import { PaginateQuery } from 'nestjs-paginate'
 
 /**
  * Interface for interacting with product data storage.
@@ -28,6 +29,11 @@ export interface IProductRepository {
    * @returns A promise that resolves with an array of products in the specified category.
    */
   getProductListByCategory(category: string): Promise<Product[]>
+
+  getProductListByCategoryV1(
+    query: PaginateQuery,
+    category: string
+  ): Promise<{ products: Product[]; totalPages: number }>
 
   /**
    * Retrieves a list of products in a specific category, sorted by price.

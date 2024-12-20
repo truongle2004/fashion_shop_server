@@ -17,7 +17,8 @@ import {
   Param,
   Post,
   Query,
-  Res
+  Res,
+  Version
 } from '@nestjs/common'
 import { Response } from 'express'
 import { IOrderByPriceUseCase } from '@/api/products/application/use-cases/orderByPrice.use-case.interface'
@@ -61,9 +62,14 @@ export class ProductHttpController {
     return await this.getByCategoryUseCase.execute(category, res)
   }
 
+  @Version('1')
   @Get('category/:category')
-  async getByCategoryV1(@Paginate() query: PaginateQuery) {
-    return await this.getByCategoryUseCase.executeV1(query)
+  async getByCategoryV1(
+    @Paginate() query: PaginateQuery,
+    @Param('category') category: string,
+    @Res() res: Response
+  ) {
+    return await this.getByCategoryUseCase.executeV1(query, category, res)
   }
 
   @Get('sort')

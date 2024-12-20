@@ -6,6 +6,7 @@ import { ProductImageOrmEntity } from '@/api/products/infrastructure/orm-entitie
 import { OrderType } from '@/types'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { paginate, PaginateQuery } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
 @Injectable()
@@ -21,8 +22,6 @@ export class ProductRepository implements IProductRepository {
       },
       relations: ['images_color']
     })
-
-    console.log(productOrmEntity)
 
     return this.toProductEntity(productOrmEntity)
   }
@@ -76,6 +75,41 @@ export class ProductRepository implements IProductRepository {
       .getMany()
 
     return productOrmEntity.map((product) => this.toProductEntity(product))
+  }
+
+  async getProductListByCategoryV1(
+    query: PaginateQuery,
+    category: string
+  ): Promise<{ products: Product[]; totalPages: number }> {
+    const queryBuilder = this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.images_color', 'images_color')
+      .select([
+        'product.id',
+        'product.name',
+        'product.price',
+        'product.currency',
+        'images_color.url',
+        'images_color.id'
+      ])
+      .where('product.category = :category', { category })
+
+    // NOTE: nestjs-paginate allow to combine with createQueryBuilder
+    const res = await paginate(query, queryBuilder, {
+      sortableColumns: ['name']
+    })
+
+    /* NOTE: by default data type is Paginated<Product[]> so that we need to map each item
+     * to return type Product as the requirement expected
+     */
+    const productEntity = res?.data.map((item) => this.toProductEntity(item))
+
+    const totalPages = Math.ceil(res.meta.totalPages / res.meta.itemsPerPage)
+
+    return {
+      products: productEntity,
+      totalPages
+    }
   }
 
   async getRandomProducts(): Promise<Product[]> {
