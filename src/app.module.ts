@@ -26,27 +26,27 @@ export class AppModule implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    // products.map((item) => {
-    //   try {
-    //     const color_images = item.images_color.map(
-    //       (item) => new ImageColor({ url: item.url, color: item.color })
-    //     )
-    //
-    //     const product = new Product({
-    //       name: item.name,
-    //       price: item.price,
-    //       category: item.category,
-    //       currency: item.currency,
-    //       sizes: item.sizes,
-    //       imagesColor: color_images,
-    //       descriptionOfUse: item.descriptionOfUse,
-    //       features: item.features
-    //     })
-    //
-    //     this.createProductRepo.create(product)
-    //   } catch (error) {
-    //     console.log(error.stack)
-    //   }
-    // })
+    products.map((item) => {
+      try {
+        const color_images = item.images_color.map(
+          (item) => new ImageColor({ url: item.url, color: item.color })
+        )
+
+        const product = new Product({
+          name: item.name,
+          price: item.price,
+          category: item.category,
+          currency: item.currency,
+          sizes: item.sizes,
+          imagesColor: color_images,
+          descriptionOfUse: item.descriptionOfUse,
+          features: item.features
+        })
+
+        this.createProductRepo.create(product)
+      } catch (error) {
+        console.log(error.stack)
+      }
+    })
   }
 }

@@ -17,8 +17,6 @@ export class GetDetailInfoUseCase implements IGetDetailInfoUseCase {
     try {
       const info = await this.productRepository.getProductInfoById(id)
 
-      console.log(info)
-
       if (!info) {
         throw new ProductNotFoundException()
       }
