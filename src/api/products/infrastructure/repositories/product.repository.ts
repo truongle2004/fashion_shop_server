@@ -15,6 +15,7 @@ export class ProductRepository implements IProductRepository {
     @InjectRepository(ProductOrmEntity)
     private readonly productRepository: Repository<ProductOrmEntity>
   ) {}
+
   async getProductInfoById(id: string): Promise<Product> {
     const productOrmEntity = await this.productRepository.findOne({
       where: {
@@ -89,6 +90,7 @@ export class ProductRepository implements IProductRepository {
         'product.name',
         'product.price',
         'product.currency',
+        'product.category',
         'images_color.url',
         'images_color.id'
       ])
@@ -121,6 +123,7 @@ export class ProductRepository implements IProductRepository {
         'product.name',
         'product.price',
         'product.currency',
+        'product.category',
         'images_color.url',
         'images_color.id'
       ])
